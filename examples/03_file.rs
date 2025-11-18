@@ -1,17 +1,14 @@
 #![allow(dead_code)]
 use anyhow::Result;
-use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader, Write};
 
 // TODO
 // - - - file - - -
-// check file exist ✅
+// ✅ check file exist
+// ✅ write (append) to new file, fail if file exists
+// ✅ read existing file
 // get file metadata (permissions, owner, size, etc.)
-// read existing file
-// create new text file
-// write to new text file
 // append lines to existing text file
-// write (append) to new file, fail if file exists ✅
 // - - - directory - - -
 // check dir exist
 // list dir
@@ -26,8 +23,13 @@ use std::io::{BufRead, BufReader, Write};
 // implement mv
 
 fn file_exists(path: &str) -> anyhow::Result<bool> {
-    println!("Checking if file exist in path: {path}");
-    Ok(std::fs::exists(path)?)
+    let exists = std::fs::exists(path)?;
+    if exists {
+        println!("File {} exists!", &path);
+    } else {
+        println!("File {} not found!", &path);
+    }
+    Ok(exists)
 }
 
 fn write_to_new_file(name: &str, content: &str) -> anyhow::Result<()> {
@@ -41,7 +43,13 @@ fn write_to_new_file(name: &str, content: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn read_file_lines() -> Result<()> {
+fn read_file(path: &str) -> Result<()> {
+    let file_content = std::fs::read_to_string(path)?;
+    println!("File content:\n============\n{}\n==========", &file_content);
+    Ok(())
+}
+
+fn read_file_lines_by_line() -> Result<()> {
     // --- Read file line by line ---
     let file = std::fs::File::open("example.txt")?;
     let reader = BufReader::new(file);
@@ -55,17 +63,14 @@ fn read_file_lines() -> Result<()> {
     Ok(())
 }
 
-fn append_line() -> Result<()> {
-    let path = "example.txt";
-    let mut file = OpenOptions::new().append(true).create(true).open(path)?;
-    writeln!(file, "This is a new line appended at the end!")?;
-    println!("\nNew line appended successfully.");
-    Ok(())
-}
-
 fn main() {
+    let this_path = std::path::Path::new(file!());
+    let file_name = this_path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("<file name w/o rs>");
     println!("==========================================================");
-    println!("Run tests: cargo t --example <file name w/o .rs extension>");
+    println!("Run tests:\ncargo t --example {}", &file_name);
     println!("==========================================================");
 }
 
@@ -123,5 +128,20 @@ mod tests {
         assert!(result.is_ok());
         let written_content = std::fs::read_to_string(&file_path).unwrap();
         assert_eq!(written_content, "");
+    }
+
+    #[test]
+    fn test_file_exists() {
+        let f = tempfile::NamedTempFile::new().unwrap();
+        let exists = file_exists(f.path().to_str().unwrap());
+        assert!(exists.is_ok());
+        assert!(exists.unwrap());
+    }
+
+    #[test]
+    fn test_file_exists_not() {
+        let exists = file_exists("fake.file");
+        assert!(exists.is_ok());
+        assert!(!exists.unwrap());
     }
 }
