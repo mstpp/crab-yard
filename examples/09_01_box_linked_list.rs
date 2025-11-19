@@ -26,6 +26,26 @@ impl LinkedList {
             next: old,
         }));
     }
+
+    pub fn pop_head(&mut self) {
+        self.head = self.head.take().and_then(|node| node.next);
+        // let current_head = self.head.take();
+        // let next = match current_head {
+        //     Some(nx) => nx.next,
+        //     None => None,
+        // };
+        // self.head = next;
+    }
+
+    pub fn len(&self) -> u64 {
+        let mut current = &self.head;
+        let mut len: u64 = 0;
+        while let Some(next) = current {
+            len = len + 1;
+            current = &next.next;
+        }
+        len
+    }
 }
 
 impl std::fmt::Display for LinkedList {
@@ -40,18 +60,22 @@ impl std::fmt::Display for LinkedList {
     }
 }
 
+impl Default for LinkedList {
+    fn default() -> Self {
+        LinkedList::new(i32::default())
+    }
+}
+
 pub fn main() {
     let mut l = LinkedList::new(1);
     println!("List init {:?}", &l);
     l.push_head(2);
     l.push_head(3);
+    l.push_head(4);
+    l.push_head(5);
     println!("Linked list: {}", &l);
+    // let size = l.len();
+    println!("len of linked list: {}", l.len());
+    l.pop_head();
+    println!("Popped: {}", &l);
 }
-
-// TODO
-// len()
-// Default trait
-// pop_head
-// push_tail
-// pop_tail
-// over generic type <T>
