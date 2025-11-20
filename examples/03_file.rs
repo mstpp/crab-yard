@@ -1,26 +1,19 @@
 #![allow(dead_code)]
-use anyhow::Result;
+use anyhow::{Ok, Result};
 use std::io::{BufRead, BufReader, Write};
 
-// TODO
-// - - - file - - -
-// ✅ check file exist
-// ✅ write (append) to new file, fail if file exists
-// ✅ read existing file
-// get file metadata (permissions, owner, size, etc.)
-// append lines to existing text file
-// - - - directory - - -
-// check dir exist
-// list dir
-// create new dir
-// remove existing dir
-// - - - utils - - -
-// implement cat
-// implement wc
-// implement dir traversal
-// implement find
-// implement cp
-// implement mv
+fn append_to(name: &str, what: &str) -> anyhow::Result<()> {
+    let mut f = std::fs::OpenOptions::new().append(true).open(name)?;
+    let bsize = f.write(what.as_bytes())?;
+    println!("Appended {} bytes to {}", bsize, name);
+    Ok(())
+}
+
+fn check_metadata() -> anyhow::Result<()> {
+    let m = std::fs::metadata("Cargo.toml")?;
+    println!("Cargo.toml medatadata: {:?}", &m);
+    Ok(())
+}
 
 fn file_exists(path: &str) -> anyhow::Result<bool> {
     let exists = std::fs::exists(path)?;
@@ -63,7 +56,7 @@ fn read_file_lines_by_line() -> Result<()> {
     Ok(())
 }
 
-fn main() {
+fn main() -> anyhow::Result<()> {
     let this_path = std::path::Path::new(file!());
     let file_name = this_path
         .file_stem()
@@ -72,12 +65,29 @@ fn main() {
     println!("==========================================================");
     println!("Run tests:\ncargo t --example {}", &file_name);
     println!("==========================================================");
+    check_metadata()?;
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Read;
     use tempfile::TempDir;
+
+    #[test]
+    fn test_append() {
+        let mut temp_file = tempfile::NamedTempFile::new().unwrap();
+        let temp_path = temp_file.path().to_str().unwrap();
+
+        std::fs::write(temp_path, "initial content").unwrap();
+
+        append_to(temp_path, " appended text").unwrap();
+
+        let mut contents = String::new();
+        temp_file.read_to_string(&mut contents).unwrap();
+        assert_eq!(contents, "initial content appended text");
+    }
 
     #[test]
     fn test_write_to_new_file_success() {
