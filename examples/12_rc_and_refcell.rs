@@ -100,7 +100,6 @@ fn find_all_paths(root: &Rc<FsNode>, target_name: &str) -> Vec<String> {
 // fn find_all_paths(root: &Rc<FsNode>, target_name: &str) -> Vec<String> {
 //     let mut paths: Vec<String> = vec![];
 //     let mut lifo: Vec<(Rc<FsNode>, String)> = Vec::new();
-
 //     match root.as_ref() {
 //         FsNode::File { name, size } => return paths,
 //         FsNode::Directory { name, children } => {
@@ -113,7 +112,6 @@ fn find_all_paths(root: &Rc<FsNode>, target_name: &str) -> Vec<String> {
 //             );
 //         }
 //     }
-
 //     // LIFO traversing - DFS
 //     while !lifo.is_empty() {
 //         let (current, cwd) = lifo.pop().unwrap();
@@ -146,12 +144,12 @@ fn reference_count(node: &Rc<FsNode>) -> usize {
 fn main() {
     // root/
     // |---/docs/report.pdf
-    // |---/docs/mydocs/report.pdf
+    // |   |----/mydocs/report.pdf
     // |---/projects/report.pdf
     //
     //
     let root = create_directory("root");
-    let docs = create_directory("documents");
+    let docs = create_directory("docs");
     let mydocs = create_directory("mydocs");
     let projects = create_directory("projects");
 
@@ -180,5 +178,5 @@ fn main() {
 // Result:
 //
 // Total size: 1024
-// Paths: ["root/projects/report.pdf", "root/documents/mydocs/report.pdf", "root/documents/report.pdf"]
+// Paths: ["root/projects/report.pdf", "root/docs/mydocs/report.pdf", "root/docs/report.pdf"]
 // References: 4

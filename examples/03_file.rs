@@ -1,7 +1,28 @@
-#![allow(dead_code)]
 use anyhow::{Ok, Result};
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufRead, Write};
 
+#[allow(dead_code)]
+fn read_file(path: &str) -> Result<()> {
+    let file_content = std::fs::read_to_string(path)?;
+    println!("File content:\n============\n{}\n==========", &file_content);
+    Ok(())
+}
+
+#[allow(dead_code)]
+fn read_file_lines_by_line() -> Result<()> {
+    let file = std::fs::File::open("example.txt")?;
+    let reader = std::io::BufReader::new(file);
+
+    println!("File content:");
+    for line_result in reader.lines() {
+        let line = line_result?;
+        println!("{}", line);
+    }
+
+    Ok(())
+}
+
+#[allow(dead_code)]
 fn append_to(name: &str, what: &str) -> anyhow::Result<()> {
     let mut f = std::fs::OpenOptions::new().append(true).open(name)?;
     let bsize = f.write(what.as_bytes())?;
@@ -15,6 +36,7 @@ fn check_metadata() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 fn file_exists(path: &str) -> anyhow::Result<bool> {
     let exists = std::fs::exists(path)?;
     if exists {
@@ -25,6 +47,7 @@ fn file_exists(path: &str) -> anyhow::Result<bool> {
     Ok(exists)
 }
 
+#[allow(dead_code)]
 fn write_to_new_file(name: &str, content: &str) -> anyhow::Result<()> {
     let mut file = std::fs::OpenOptions::new()
         .create_new(true)
@@ -32,26 +55,6 @@ fn write_to_new_file(name: &str, content: &str) -> anyhow::Result<()> {
         .open(name)?;
 
     file.write_all(content.as_bytes())?;
-
-    Ok(())
-}
-
-fn read_file(path: &str) -> Result<()> {
-    let file_content = std::fs::read_to_string(path)?;
-    println!("File content:\n============\n{}\n==========", &file_content);
-    Ok(())
-}
-
-fn read_file_lines_by_line() -> Result<()> {
-    // --- Read file line by line ---
-    let file = std::fs::File::open("example.txt")?;
-    let reader = BufReader::new(file);
-
-    println!("File contents:");
-    for line_result in reader.lines() {
-        let line = line_result?;
-        println!("{}", line);
-    }
 
     Ok(())
 }
