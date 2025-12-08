@@ -1,5 +1,4 @@
 // Event System with Observers (Publisher-Subscriber Pattern)
-
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -85,21 +84,21 @@ fn main() {
     let logger = Observer::new(
         "Logger",
         Box::new(|data| {
-            println!("[LOG] 🪵 {}", data);
+            println!("[LOG] | {}", data);
         }),
     );
 
     let metrics = Observer::new(
         "Metrics",
         Box::new(|data| {
-            println!("[METRICS] Ⓜ️ Recording: {}", data);
+            println!("[METRICS] | Recording: {}", data);
         }),
     );
 
     let alerter = Observer::new(
         "Alerter",
         Box::new(|data| {
-            println!("[ALERT] ⚠️ {}", data);
+            println!("[ALERT] | {}", data);
         }),
     );
 
@@ -139,6 +138,21 @@ fn main() {
     bus.publish("error", "Another error");
     // Should only print [ALERT], not [LOG]
 }
+
+// === Publishing user_login ===
+// [LOG] 🪵 User Alice logged in
+// [METRICS] Ⓜ️ Recording: User Alice logged in
+// Subscribers count: 2
+
+// === Publishing error ===
+// [LOG] 🪵 Database connection failed
+// [ALERT] ⚠️ Database connection failed
+
+// Logger is subscribed to 4 events
+// Logger has 4 total references
+
+// After unsubscribing logger from errors:
+// [ALERT] ⚠️ Another error
 
 #[cfg(test)]
 mod tests {
