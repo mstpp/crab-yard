@@ -5,8 +5,10 @@ use std::io::Write;
 #[derive(Debug, Parser)]
 struct Cli {
     name: String,
+    /// Show line numbers
     #[arg(short, long)]
     number: bool,
+    /// Do not enforce UTF8 decoding
     #[arg(short, long)]
     utf8: bool,
 }
@@ -16,7 +18,7 @@ fn main() -> anyhow::Result<()> {
     println!("{:?}", &cli);
     let f = std::fs::File::open(cli.name)?;
     let r = std::io::BufReader::new(f);
-    let mut w = std::io::BufWriter::new(std::io::stdout());
+    let mut w = std::io::BufWriter::new(std::io::stdout()); // .lock() ?
 
     if cli.utf8 {
         for (n, line) in r.split(b'\n').enumerate() {
