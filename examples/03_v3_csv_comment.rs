@@ -58,7 +58,7 @@ fn extract_csv_config(csv_data: &str) -> Result<(CsvConfig, &str)> {
     }
 }
 
-// alternative - no real perf increase and less idiomatic and not recommended
+// alternative - no real perf increase, less idiomatic, not recommended
 #[allow(dead_code)]
 fn extract_csv_config_v2(csv_data: &str) -> Result<(CsvConfig, &str)> {
     let first_line_index = csv_data.find("\n").context("missing first line")?;
