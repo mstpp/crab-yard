@@ -1,39 +1,57 @@
-use std::error::Error;
-use std::path::Path;
+use byte_unit::{Byte, UnitType};
+use prettytable::{Table, format, row};
+use std::collections::HashMap;
 
 #[derive(Debug)]
-pub struct ExtType {
-    pub ext: String,
+pub struct ExtStats {
     pub count: u32,
     pub bytes: u64,
+    pub is_bin: bool,
 }
 
-impl ExtType {
-    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Self, Box<dyn Error>> {
-        let p = path.as_ref();
-        let metadata = p.metadata()?;
+#[derive(Debug)]
+pub struct ExtAgg {
+    pub stats: HashMap<String, ExtStats>,
+}
 
-        let ext = p
-            .extension()
-            .and_then(|os_str| os_str.to_str())
-            .unwrap_or("")
-            .to_string();
-
-        Ok(ExtType {
-            ext,
-            count: 1,
-            bytes: metadata.len(),
-        })
+impl ExtAgg {
+    pub fn new() -> Self {
+        ExtAgg {
+            stats: HashMap::new(),
+        }
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+    pub fn add_file(&mut self, extension: String, size: u64, is_bin: bool) {
+        self.stats
+            .entry(extension)
+            .and_modify(|s| {
+                s.count += 1;
+                s.bytes += size
+            })
+            .or_insert(ExtStats {
+                count: 1,
+                bytes: size,
+                is_bin,
+            });
+    }
 
-    #[test]
-    fn test_txt_file() {
-        let et = ExtType::from_path("test.txt");
-        println!("DEBUG: {et:?}");
+    pub fn display(&self) {
+        let mut table = Table::from_csv_string("Extension,Count,Size").unwrap();
+        let mut bin_total_size = 0_u64;
+
+        // Remove internal horizontal lines
+        table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+
+        for (ext, stats) in self.stats.iter() {
+            let byte_size = Byte::from_u64(stats.bytes).get_appropriate_unit(UnitType::Binary);
+            let formatted_size = format!("{:.2}", byte_size);
+            table.add_row(row![ext, stats.count, formatted_size,]);
+            if stats.is_bin {
+                bin_total_size += stats.bytes;
+            }
+        }
+        println!("{table}");
+        let bin_total = Byte::from_u64(bin_total_size).get_appropriate_unit(UnitType::Binary);
+        println!("\nTotal bin files size: {bin_total}");
     }
 }

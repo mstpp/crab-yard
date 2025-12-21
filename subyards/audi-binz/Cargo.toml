@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+byte-unit = "5.2.0"
+content_inspector = "0.2.4"
+prettytable = "0.10.0"
+random_word = "0.5.2"
