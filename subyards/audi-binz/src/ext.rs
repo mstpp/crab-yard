@@ -42,7 +42,11 @@ impl ExtAgg {
         // Remove internal horizontal lines
         table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
 
-        for (ext, stats) in self.stats.iter() {
+        // Sort by size desc
+        let mut sorted: Vec<(&String, &ExtStats)> = self.stats.iter().collect();
+        sorted.sort_by_key(|&(_, v)| std::cmp::Reverse(v.bytes));
+
+        for (ext, stats) in sorted.iter() {
             let byte_size = Byte::from_u64(stats.bytes).get_appropriate_unit(UnitType::Binary);
             let formatted_size = format!("{:.2}", byte_size);
             table.add_row(row![ext, stats.count, formatted_size,]);
@@ -52,6 +56,6 @@ impl ExtAgg {
         }
         println!("{table}");
         let bin_total = Byte::from_u64(bin_total_size).get_appropriate_unit(UnitType::Binary);
-        println!("\nTotal bin files size: {bin_total}");
+        println!("\nTotal bin files size: {bin_total:.2}");
     }
 }

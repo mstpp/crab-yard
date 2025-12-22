@@ -1,8 +1,10 @@
 // 1. traverse from input path to all subdirs
 // 2. check file type and matadata,
 // 3. aggragate files per extension, collect size, lines count and file count per extension
+// 3.1 if no extension on a file, make 2 types: no-ext-bin and no-ext-txt
 // 4. display in nice table view
-//
+// 5. display a total sum of size of all bin files 
+// 6. sort by desc by size
 
 mod ext;
 use crate::ext::ExtAgg; // File Extension Type
