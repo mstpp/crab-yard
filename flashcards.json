@@ -1,0 +1,114 @@
+{
+  "topics_map": {
+    "rust": [
+      {
+        "question": "How do you choose Option<T> or Result<T>?",
+        "answer": "Ask if this returns nothing or fails, does the caller need to know WHY?\n- YES: Result<T>, e.g. file corrupetd,\n- NO: Option<T>, e.g. field empty is one of the expected cases"
+      },
+      {
+        "question": "Why Rc<T>? When you need shared ownership?",
+        "answer": "When you don’t know the lifetimes of all the owners"
+      },
+      {
+        "question": "How to split words in &str?",
+        "answer": "str::split_whitespace() // first choice\nstr::split(\" \") // it might be problematic when multiple spaces, \\t or \\n\nstr::split_ascii_whitespace() // ascii only\n\n' '   // space (0x20)\n'\\t'  // tab (0x09)\n'\\n'  // line feed (0x0A)\n'\\r'  // carriage return (0x0D)\n'\\x0C' // form feed\n'\\x0B' // vertical tab"
+      },
+      {
+        "question": "When counting words in Rust, which method should you use and why?",
+        "answer": ".split_whitespace() because it handles all types of whitespace (spaces, tabs, newlines) correctly, whereas .split(\" \") only splits on single spaces"
+      },
+      {
+        "question": "What is a buffer (buf) in the context of file I/O?",
+        "answer": "A buffer is RAM memory that reads chunks (typically 8KB) from disk, stores them in memory, so you can read from memory instead of making expensive syscalls for every read operation"
+      },
+      {
+        "question": "How do you sort a HashMap by key in Rust?",
+        "answer": "Convert it to Vec<tuple> using .into_iter().collect(), then use .sort_by_key() and reverse with std::cmp::Reverse() if needed"
+      },
+      {
+        "question": "What's the difference between MiB and MB?",
+        "answer": "MiB (Mebibyte) = 1024² bytes (binary), MB (Megabyte) = 1000² bytes (decimal). MiB is power of 2, MB is power of 10"
+      },
+      {
+        "question": "BufReader.with_capacity() - when and why would you use this?",
+        "answer": "To create a buffer with custom capacity instead of the default size, useful when you know your typical read patterns and want to optimize memory usage or reduce syscalls"
+      },
+      {
+        "question": "What does BufWriter.flush() do?",
+        "answer": "Forces the buffered data to be written from memory to disk immediately, instead of waiting for the buffer to fill or the writer to be dropped"
+      },
+      {
+        "question": "Why shouldn't you store std::fs::DirEntry in a Vec when traversing directories?",
+        "answer": "Every DirEntry is an opened file descriptor. Storing many in a Vec can exhaust file descriptor limits. Use Path instead, which doesn't hold open file descriptors"
+      },
+      {
+        "question": "What are the two most common methods used with RefCell?",
+        "answer": "borrow() for immutable borrows and borrow_mut() for mutable borrows (also get_mut() when you have exclusive access)"
+      },
+      {
+        "question": "When should you use Option vs Default in Rust?",
+        "answer": "Use Default when there's a sensible fallback value. Use Option when the absence of a value is an expected/valid case that needs to be handled explicitly"
+      },
+      {
+        "question": "Why use .lines() instead of .split(\"\\n\") on a string?",
+        "answer": ".lines() handles both \\n and \\r\\n line endings correctly (cross-platform), while .split(\"\\n\") only handles Unix-style line endings"
+      },
+      {
+        "question": "When you have an iterator over Result<T, E>, what are your three main options?",
+        "answer": "1) Propagate errors with collect::<Result<Vec<_>, _>>()?,\n2) Filter/ignore errors with .filter_map(Result::ok),\n3) Partition into successes and failures with .partition()"
+      },
+      {
+        "question": "CSV writer isn't flexible for appending. How do you work around this?",
+        "answer": "Use File::options() to create a writer with append mode, then pass that writer to csv::Writer. The writer accepts any type implementing Write trait"
+      },
+      {
+        "question": "You want to split a string but only into N parts. What method should you use?",
+        "answer": ".splitn(n, delimiter) - splits into at most n substrings, with the last part containing the rest of the string unsplit"
+      },
+      {
+        "question": "When checking if a string starts with a specific prefix, which method is more precise than .contains()?",
+        "answer": ".starts_with() or .strip_prefix() - they check from the beginning only, whereas .contains() checks anywhere in the string"
+      },
+      {
+        "question": "What's the shorter alternative to return Err(anyhow!(...))?",
+        "answer": "bail!(...) - it's a macro from anyhow that does the same thing more concisely"
+      },
+      {
+        "question": "What crate helps make test assertions more readable with better diff output?",
+        "answer": "pretty_assertions - shows colored diffs when assertions fail, making it much easier to spot differences in test failures"
+      },
+      {
+        "question": "How do you make exact string match assertions in tests?",
+        "answer": "Use predicate::str::diff() from the predicates crate - it provides detailed diff output for string comparisons"
+      },
+      {
+        "question": "Can you have comments in CSV files?",
+        "answer": "Yes! You can use metadata config comments in CSV files (e.g., starting with #). This allows embedding configuration or metadata directly in the data file"
+      },
+      {
+        "question": "What crate can you use to inspect binary file content and determine file types?",
+        "answer": "content_inspector crate - analyzes file content to determine if it's binary or text, and can identify file types"
+      },
+      {
+        "question": "What crate provides formatted table output in the terminal?",
+        "answer": "prettytable or prettytable-rs - creates ASCII tables with borders, alignment, and formatting for CLI output"
+      },
+      {
+        "question": "Lifetime Elision first rule?",
+        "answer": "compiler assigns a separate lifetime param to each ref in fn definition,\ne.g. fn foo<'a, 'b>(x: &'a i32, y: &'b i32)\nfirst rule is only about **input** params"
+      },
+      {
+        "question": "Second Lifetime Elision rule?",
+        "answer": "if there is exactly one input lifetime parameter, that lifetime is assigned to all output lifetime parameters:\nfn foo<'a>(x: &'a i32) -> &'a i32"
+      },
+      {
+        "question": "Third Lifetime Elision rule?",
+        "answer": "if there are multiple input lifetime parameters, but one of them is &self or &mut self because this is a method, the lifetime of self is assigned to all output lifetime parameters"
+      },
+      {
+        "question": "prefer &[String] over &Vec<String> in function signatures—it's more flexible (accepts arrays, slices, and vecs)! why?",
+        "answer": "&Vec<T> is a reference to the Vec struct itself (pointer, length, capacity)\n&[T] is a slice: just a pointer and length, viewing the contiguous data without caring about capacity or the exact container\nRust automatically coerces &Vec<String> → &[String] via Deref coercion"
+      }
+    ]
+  }
+}
