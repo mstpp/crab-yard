@@ -108,6 +108,22 @@
       {
         "question": "prefer &[String] over &Vec<String> in function signatures—it's more flexible (accepts arrays, slices, and vecs)! why?",
         "answer": "&Vec<T> is a reference to the Vec struct itself (pointer, length, capacity)\n&[T] is a slice: just a pointer and length, viewing the contiguous data without caring about capacity or the exact container\nRust automatically coerces &Vec<String> → &[String] via Deref coercion"
+      },
+      {
+        "question": "When .collect() vs .for_each()?",
+        "answer": "- collect() - building new collection\n- for_each() - when side effect needed\n\ncollect() uses FromIterator Trait, so target type determines how to build itslef\nbad example: mut hashmap elsewhere, then for_each to filter and insert"
+      },
+      {
+        "question": "Ownership rules?",
+        "answer": "1. Each value has an OWNER\n2. There can be only ONE OWNER at a time\n3. When owner goes out of scope, value is dropped"
+      },
+      {
+        "question": "References rules?",
+        "answer": "1. you can have only 1 mut ref or any number of immutable refs\n2. ref must always be valid (no dangling)"
+      },
+      {
+        "question": "What is \"flatmap\" operation and when to use it?",
+        "answer": "It's .and_then() on an Option<T> and it's used to chain closures that produce options"
       }
     ]
   }
