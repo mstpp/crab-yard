@@ -144,6 +144,10 @@
       {
         "question": "What is the diff: if let Some(ref mut c) vs. if let Some(c) = o.as_mut()?",
         "answer": "Scope: ref mut has inner if branch scope, while .as_mut() has outer block scope"
+      },
+      {
+        "question": "In place modify value in HashMap?",
+        "answer": "*map.entry(key).or_insert(default_value) += 1;\n.get() will return a value type, but it's much better to work with Entry type"
       }
     ]
   }
