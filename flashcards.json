@@ -124,6 +124,26 @@
       {
         "question": "What is \"flatmap\" operation and when to use it?",
         "answer": "It's .and_then() on an Option<T> and it's used to chain closures that produce options"
+      },
+      {
+        "question": "When to use .as_mut() vs. ref mut in pattern matching?",
+        "answer": "- simple Option or Result or chaining or 80% of the time .as_mut()\n- complext pattern matching, inside match"
+      },
+      {
+        "question": "Reborrowing?",
+        "answer": "&*c converts &mut str → &str. This is called reborrowing"
+      },
+      {
+        "question": "Replace None in Vec<Option<i32>> with Some(0)",
+        "answer": ".get_or_insert()\nscores.iter_mut().for_each(|opt| {\n    opt.get_or_insert(0);\n});"
+      },
+      {
+        "question": "What does .flatten() do on Option and Result?",
+        "answer": "Filters out None and Err"
+      },
+      {
+        "question": "What is the diff: if let Some(ref mut c) vs. if let Some(c) = o.as_mut()?",
+        "answer": "Scope: ref mut has inner if branch scope, while .as_mut() has outer block scope"
       }
     ]
   }
