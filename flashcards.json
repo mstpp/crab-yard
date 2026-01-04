@@ -67,7 +67,7 @@
       },
       {
         "question": "When checking if a string starts with a specific prefix, which method is more precise than .contains()?",
-        "answer": ".starts_with() or .strip_prefix() - they check from the beginning only, whereas .contains() checks anywhere in the string\nit's a fn from slice type"
+        "answer": ".starts_with() or .strip_prefix() - they check from the beginning only, whereas .contains() checks anywhere in the string"
       },
       {
         "question": "What's the shorter alternative to return Err(anyhow!(...))?",
@@ -131,7 +131,7 @@
       },
       {
         "question": "Reborrowing?",
-        "answer": "&*c converts &mut str → &str. This is called reborrowing\nExclusive borrow > to shared borrow"
+        "answer": "&*c converts &mut str → &str. This is called reborrowing"
       },
       {
         "question": "Replace None in Vec<Option<i32>> with Some(0)",
