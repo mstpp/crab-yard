@@ -160,6 +160,10 @@
       {
         "question": "Closure capturing reference lifetime - syntax?",
         "answer": "type ParserResult<'a, T> = Option<(T, T)>;\ntype Parser<'a, T> = Box<dyn Fn(&T) -> ParserResult<'a, T> + 'a>; // Parser is holding a closure\n//                                                            ^--- it's a lifetime of a capturing\n//                                                            reference, w/o explicit, it will\n//                                                            use 'static !!!"
+      },
+      {
+        "question": "Sort in reverse order d",
+        "answer": "std::cmp::Reverse \n\nfn summarize<T: Display + Priority>(items: &[T]) -> String {\n    let mut sorted: Vec<_> = items.iter().collect(); // not owning! it's Vec<&T>\n    sorted.sort_by_key(|item| std::cmp::Reverse(item.priority())); // reversing by Reverse wrapper"
       }
     ]
   }
