@@ -148,6 +148,18 @@
       {
         "question": "In place modify value in HashMap?",
         "answer": "*map.entry(key).or_insert(default_value) += 1;\n.get() will return a value type, but it's much better to work with Entry type"
+      },
+      {
+        "question": "Monomorphization?",
+        "answer": "Generic types into specific during compilation. zero-runtime-cost of using generics"
+      },
+      {
+        "question": "Multi-lifetime in closure",
+        "answer": "type ComplexParser<'a, 'b, 'c, T> = Box\n    dyn Fn(&'a str, &'b str) -> (&'c str, T) + 'a + 'b\n    //     ^^^^^^  ^^^^^^       ^^^^^^        ^^^^^^^\n    //     |       |            |             Trait object bounds:\n    //     |       |            |             \"can capture 'a and 'b refs\"\n    //     |       |            Return lifetime\n    //     |       Second parameter\n    //     First parameter\n>;"
+      },
+      {
+        "question": "Closure capturing reference lifetime - syntax?",
+        "answer": "type ParserResult<'a, T> = Option<(T, T)>;\ntype Parser<'a, T> = Box<dyn Fn(&T) -> ParserResult<'a, T> + 'a>; // Parser is holding a closure\n//                                                            ^--- it's a lifetime of a capturing\n//                                                            reference, w/o explicit, it will\n//                                                            use 'static !!!"
       }
     ]
   }
