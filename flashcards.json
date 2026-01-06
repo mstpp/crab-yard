@@ -176,6 +176,10 @@
       {
         "question": "When to use Into and From traits?",
         "answer": "Convention: use Into for function parameters, From for return types\n// Caller's type converts INTO our type\nfn new<S: Into<String>>(s: S) -> Self\n\n// We return something that comes FROM the input\nfn parse(s: &str) -> Result<Self, Error>\nwhere\n    Self: From<&str>"
+      },
+      {
+        "question": "Pipeline, chain Result<T>",
+        "answer": "use .try_fold()\n\nExample:\n    fn run(&self, input: &str) -> Result<String, ProcessorError> {\n        let mut res = String::from(input);\n        for proc in self.procs.iter() {\n            println!(\"Input:{}\\n{}-ing...\", &res, proc.name());\n            res = proc.process(&res)?;\n        }\n        Ok(res)\n    }\n\n    fn run(&self, input: &str) -> Result<String, ProcessorError> {\n    self.procs\n        .iter()\n        .try_fold(input.to_string(), |current, proc| {\n            println!(\"Input:{}\\n{}-ing...\", &current, proc.name());\n            proc.process(&current)\n        })\n    }"
       }
     ]
   }
