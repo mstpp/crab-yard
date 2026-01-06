@@ -164,6 +164,18 @@
       {
         "question": "Sort in reverse order d",
         "answer": "std::cmp::Reverse \n\nfn summarize<T: Display + Priority>(items: &[T]) -> String {\n    let mut sorted: Vec<_> = items.iter().collect(); // not owning! it's Vec<&T>\n    sorted.sort_by_key(|item| std::cmp::Reverse(item.priority())); // reversing by Reverse wrapper"
+      },
+      {
+        "question": "How come we can pass Status::Value to a .map()?\nfn main() {\n    enum Status {\n        Value(u32),\n        Stop,\n    }\n\n    let list_of_statuses: Vec<Status> = (0u32..20).map(Status::Value).collect();\n}",
+        "answer": "Enum value is also an initializer fn!"
+      },
+      {
+        "question": "Example: passing the trait method as a function pointer",
+        "answer": ".map(Into::into)\n=\n.map(|item| item.into())\n\nwords.into_iter().map(Into::into).collect()"
+      },
+      {
+        "question": "When to use Into and From traits?",
+        "answer": "Convention: use Into for function parameters, From for return types\n// Caller's type converts INTO our type\nfn new<S: Into<String>>(s: S) -> Self\n\n// We return something that comes FROM the input\nfn parse(s: &str) -> Result<Self, Error>\nwhere\n    Self: From<&str>"
       }
     ]
   }
