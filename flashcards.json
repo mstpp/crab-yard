@@ -188,6 +188,10 @@
       {
         "question": "What is Trait Blanket Implementation?",
         "answer": "Implementations of a trait on any type that satisfies the trait bounds\nNew functionality for free,\nExample: impl<T: Debug> Loggable for T {}\nImplements Loggable Trait on any type that implements Debug"
+      },
+      {
+        "question": "Pattern: Newtype",
+        "answer": "- wrap an existing type in a single-field tuple struct: struct Json<T>(pub T);\n- we can implement custom Trait over types that we don't own\n- workaround the Orphan-rule: you can only implement a trait for a type if you own either the trait or the type\n- custom trait can use super-traits: trait Serializable: Display + Debug + Clone \n- then we implement custom trait, and all super-traits over wrapper type \n- to overcome loosing inner-type methods, implement Deref trait\n\nWhen to Use It\n\nUnits of measurement (meters, seconds, pixels)\nDomain identifiers (UserId, OrderId, SessionToken)\nImplementing foreign traits on foreign types\nAdding validation at construction time\nCustom Behavior (e.g. Hidden Password)\n\nstruct Password(String);\n\nimpl std::fmt::Display for Password {\n    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {\n        write!(f, \"********\")\n    }\n}"
       }
     ]
   }
