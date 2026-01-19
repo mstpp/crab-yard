@@ -1,5 +1,41 @@
 {
   "topics_map": {
+    "Concurrency": [
+      {
+        "question": "Semaphore vs Queue?",
+        "answer": "Semaphore:\n- Controls access count to a resource\n- \"How many can enter?\"\nQueue:\n- Holds and transfers actual data\n- \"What work needs to be done?\"\n\nUse a semaphore when you need to limit concurrent access to something that already exists — you're not passing work items, you're gatekeeping access.\nUse a queue when you need to pass actual work items between producers and consumers."
+      }
+    ],
+    "RESTful API": [
+      {
+        "question": "What means REST?",
+        "answer": "REpresentation State Transfer \nStatelessness ✓\nHTTP methods (GET, POST, PUT, DELETE) ✓\nResource-based URLs (/users) ✓\nHeaders for auth/metadata ✓\nClient-Server — separation of concerns\nStateless — you got this one\nCacheable — responses can be cached\nUniform Interface — consistent resource naming, standard methods\nLayered System — client doesn't know if it's talking to end server or intermediary"
+      },
+      {
+        "question": "Can you explain the difference between PUT and PATCH? When would you use one over the other?",
+        "answer": "For PUT you need to have all fields, for PATCH only partial update, just email for example \nPUT — when client has the full resource and wants to replace it entirely\nPATCH — when updating one or two fields (more bandwidth-efficient, safer)"
+      },
+      {
+        "question": "A client calls your API to create a new user, and it succeeds. What HTTP status code should you return — and why not just 200 OK?",
+        "answer": "201 Created — that's the one. (Not \"201 OK\" — the phrase is \"201 Created\", while \"200 OK\" is a different code.)\nYou typically return:\n\nThe created resource (with its new id) in the body\nLocation header pointing to the new resource URL e.g. return jsonify(user), 201, {'Location': f'/users/{user[\"id\"]}'}\n\nQuick 2xx family cheat sheet:\n200 OK General success, returning data\n201 Created Resource created (POST)\n204 No Content Success, but nothing to return (often for DELETE)\n202 Accepted - async req where we wait for long rnning job"
+      },
+      {
+        "question": "A client tries to fetch GET /users/9999 but that user doesn't exist. What status code do you return?\nNow — what if they try to create a user with an email that already exists? Same code or different?",
+        "answer": "404 Not Found — ✓ Perfect for \"resource doesn't exist\"\n409 Conflict is more semantically accurate here because:\n\nThe request itself is valid (well-formed JSON, all fields present)\nIt just conflicts with existing data"
+      },
+      {
+        "question": "4xx return codes?",
+        "answer": "Client side error codes: \n400 Validation failed, bad JSON, missing required field\n401 Not authenticated (who are you?)\n403 Authenticated but not authorized (you can't do this)\n404 Resource not found\n409 Conflict with existing resource\n429 Too many requests (Rate limit)"
+      },
+      {
+        "question": "HATEOAS?",
+        "answer": "HATEOAS — Hypermedia As The Engine Of Application State\nThe idea: API responses should include links telling the client what actions are possible next\n{\n    \"id\": 42,\n    \"name\": \"Marko\",\n    \"status\": \"active\",\n    \"links\": [\n        {\"rel\": \"self\", \"href\": \"/users/42\"},\n        {\"rel\": \"posts\", \"href\": \"/users/42/posts\"},\n        {\"rel\": \"deactivate\", \"href\": \"/users/42/deactivate\", \"method\": \"POST\"}\n    ]\n}\n\nReality: Almost nobody implements full HATEOAS. It's academically \"correct\" REST but overkill for most real-world APIs.\n\"HATEOAS means responses include links to related actions and resources — making the API self-discoverable. In theory it's elegant, but in practice most teams skip it because clients typically hardcode endpoints anyway. I'd consider it for public APIs where discoverability matters, but for internal services it's usually overkill.\""
+      },
+      {
+        "question": "common security concerns when building REST APIs?",
+        "answer": "SQL Injection\nRate limiting (429)\nBad input - Validation + sanitization\nUnauthorized access\nExplicit field selection to prevent data leaks"
+      }
+    ],
     "rust": [
       {
         "question": "How do you choose Option<T> or Result<T>?",
@@ -192,6 +228,10 @@
       {
         "question": "Pattern: Newtype",
         "answer": "- wrap an existing type in a single-field tuple struct: struct Json<T>(pub T);\n- we can implement custom Trait over types that we don't own\n- workaround the Orphan-rule: you can only implement a trait for a type if you own either the trait or the type\n- custom trait can use super-traits: trait Serializable: Display + Debug + Clone \n- then we implement custom trait, and all super-traits over wrapper type \n- to overcome loosing inner-type methods, implement Deref trait\n\nWhen to Use It\n\nUnits of measurement (meters, seconds, pixels)\nDomain identifiers (UserId, OrderId, SessionToken)\nImplementing foreign traits on foreign types\nAdding validation at construction time\nCustom Behavior (e.g. Hidden Password)\n\nstruct Password(String);\n\nimpl std::fmt::Display for Password {\n    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {\n        write!(f, \"********\")\n    }\n}"
+      },
+      {
+        "question": "Dynamic vs static dispatch?",
+        "answer": "impl Trait vs. dyn Trait \n// Static dispatch - compiler generates specialized versions\nfn process<T: Animal>(a: &T) { }\nfn process(a: &impl Animal) { }  // Syntactic sugar for the above\n\n// Dynamic dispatch - single function, runtime lookup\nfn process(a: &dyn Animal) { }\nfn process(a: Box<dyn Animal>) { }\n\nNot all traits can be used with dyn. A trait must be \"object-safe\" for dynamic dispatch\n\ntrait NotObjectSafe {\n    fn clone_self(&self) -> Self;  // ❌ Returns Self - size unknown at compile time\n    fn generic<T>(&self, x: T);    // ❌ Generic methods - can't put in vtable\n}"
       }
     ]
   }
