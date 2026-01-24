@@ -232,6 +232,10 @@
       {
         "question": "Dynamic vs static dispatch?",
         "answer": "impl Trait vs. dyn Trait \n// Static dispatch - compiler generates specialized versions\nfn process<T: Animal>(a: &T) { }\nfn process(a: &impl Animal) { }  // Syntactic sugar for the above\n\n// Dynamic dispatch - single function, runtime lookup\nfn process(a: &dyn Animal) { }\nfn process(a: Box<dyn Animal>) { }\n\nNot all traits can be used with dyn. A trait must be \"object-safe\" for dynamic dispatch\n\ntrait NotObjectSafe {\n    fn clone_self(&self) -> Self;  // ❌ Returns Self - size unknown at compile time\n    fn generic<T>(&self, x: T);    // ❌ Generic methods - can't put in vtable\n}"
+      },
+      {
+        "question": "Type boundaries and overflow handling?",
+        "answer": "checked_* / warpping_* / saturating_* / overflowing_* /"
       }
     ]
   }
