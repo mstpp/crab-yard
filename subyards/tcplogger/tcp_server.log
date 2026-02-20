@@ -1,31 +1,9 @@
-2025-12-28 13:07:02.633 INFO Server listening on 127.0.0.1:7575
-2025-12-28 13:07:07.035 INFO New connection from 127.0.0.1:59075
-2025-12-28 13:07:15.837 INFO Received: [1] Hey Joe!After sleeping 8.8 seconds
-2025-12-28 13:07:15.838 INFO Connection from 127.0.0.1:59075 closed
-2025-12-28 13:07:15.838 INFO New connection from 127.0.0.1:59078
-2025-12-28 13:07:15.838 INFO Received: [4] Hey Joe!After sleeping 8.1 seconds
-2025-12-28 13:07:15.838 INFO Connection from 127.0.0.1:59078 closed
-2025-12-28 13:07:15.838 INFO New connection from 127.0.0.1:59077
-2025-12-28 13:07:16.840 INFO Received: [6] Hey Joe!After sleeping 9.8 seconds
-2025-12-28 13:07:16.841 INFO Connection from 127.0.0.1:59077 closed
-2025-12-28 13:07:16.841 INFO New connection from 127.0.0.1:59076
-2025-12-28 13:07:16.841 INFO Received: [5] Hey Joe!After sleeping 4.1000000000000005 seconds
-2025-12-28 13:07:16.841 INFO Connection from 127.0.0.1:59076 closed
-2025-12-28 13:07:16.841 INFO New connection from 127.0.0.1:59079
-2025-12-28 13:07:16.842 INFO Received: [7] Hey Joe!After sleeping 0.30000000000000004 seconds
-2025-12-28 13:07:16.842 INFO Connection from 127.0.0.1:59079 closed
-2025-12-28 13:07:16.842 INFO New connection from 127.0.0.1:59081
-2025-12-28 13:07:16.842 INFO Received: [8] Hey Joe!After sleeping 0.4 seconds
-2025-12-28 13:07:16.842 INFO Connection from 127.0.0.1:59081 closed
-2025-12-28 13:07:16.842 INFO New connection from 127.0.0.1:59080
-2025-12-28 13:07:16.842 INFO Received: [3] Hey Joe!After sleeping 8.3 seconds
-2025-12-28 13:07:16.842 INFO Connection from 127.0.0.1:59080 closed
-2025-12-28 13:07:16.843 INFO New connection from 127.0.0.1:59082
-2025-12-28 13:07:16.843 INFO Received: [2] Hey Joe!After sleeping 4.6000000000000005 seconds
-2025-12-28 13:07:16.843 INFO Connection from 127.0.0.1:59082 closed
-2025-12-28 13:07:16.843 INFO New connection from 127.0.0.1:59083
-2025-12-28 13:07:16.843 INFO Received: [9] Hey Joe!After sleeping 9.600000000000001 seconds
-2025-12-28 13:07:16.843 INFO Connection from 127.0.0.1:59083 closed
-2025-12-28 13:07:16.843 INFO New connection from 127.0.0.1:59084
-2025-12-28 13:07:16.843 INFO Received: [10] Hey Joe!After sleeping 1.5 seconds
-2025-12-28 13:07:16.844 INFO Connection from 127.0.0.1:59084 closed
+2026-02-16 10:50:09.343 INFO Server listening on 127.0.0.1:7575
+2026-02-16 10:50:30.864 INFO New connection from 127.0.0.1:60160
+2026-02-16 10:50:46.512 INFO Received: my first message on first client
+2026-02-16 10:50:55.781 INFO Received: second msg cl-1
+2026-02-16 10:51:21.135 INFO Received: 
+2026-02-16 10:51:22.477 INFO Connection from 127.0.0.1:60160 closed
+2026-02-16 10:51:22.477 INFO New connection from 127.0.0.1:60163
+2026-02-16 10:51:22.478 INFO Received: cl-2: whatzappp
+2026-02-16 10:51:22.478 INFO Received: second cl-2

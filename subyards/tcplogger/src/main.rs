@@ -13,7 +13,7 @@ where
     T: Write,
     F: Write,
 {
-    term: T,
+    term: T, // term for terminal, or stdout
     file: F,
 }
 
