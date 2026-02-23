@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
 use tokio::sync::Semaphore;
+use tokio::time::{Duration, timeout};
 
 #[derive(Debug)]
 struct Resource {
@@ -22,15 +23,25 @@ async fn client(id: usize, resource: Arc<Mutex<Resource>>, sem: Arc<Semaphore>) 
     // ask for semaphore permit
     let _permit = sem.acquire().await.unwrap();
     println!("[{id}] acquired permit");
-    {
-        let mut lock = resource.lock().unwrap();
-        // modify resource
-        lock.count(id);
-    } // lock get's out of scope here 
-    // simulated delay
-    let millis = rand::random_range(1..=10) * 500;
-    let delay = std::time::Duration::from_millis(500 + millis);
-    tokio::time::sleep(delay).await;
+
+    // timeout implementation
+    let work = async {
+        {
+            let mut lock = resource.lock().unwrap();
+            lock.count(id); // modify shared resource 
+        } // lock get's out of scope here 
+
+        // simulated delay
+        // if it times out, it would be on this random wait, no real err
+        let millis = rand::random_range(1..=10) * 500;
+        let delay = std::time::Duration::from_millis(500 + millis);
+        tokio::time::sleep(delay).await;
+    };
+
+    match timeout(Duration::from_secs(3), work).await {
+        Ok(()) => println!("[{id}] completed"),
+        Err(_) => println!("[{id}] timed out! ***********"),
+    }
     println!("[{id}] client finish");
 } // permit goes out of scope here
 
