@@ -4,7 +4,16 @@ use tokio::sync::Semaphore;
 #[derive(Debug)]
 struct Resource {
     counter: usize,
-    last_client: usize, // todo: add history of access?
+    last_client: usize,
+    access_history: Box<Vec<usize>>,
+}
+
+impl Resource {
+    fn count(&mut self, id: usize) {
+        self.counter += 1;
+        self.last_client = id;
+        self.access_history.push(id);
+    }
 }
 
 async fn client(id: usize, resource: Arc<Mutex<Resource>>, sem: Arc<Semaphore>) {
@@ -16,8 +25,7 @@ async fn client(id: usize, resource: Arc<Mutex<Resource>>, sem: Arc<Semaphore>) 
     {
         let mut lock = resource.lock().unwrap();
         // modify resource
-        lock.counter += 1;
-        lock.last_client = id;
+        lock.count(id);
     } // lock get's out of scope here 
     // simulated delay
     let millis = rand::random_range(1..=10) * 500;
@@ -33,6 +41,7 @@ async fn main() {
     let data = Arc::new(Mutex::new(Resource {
         counter: 0,
         last_client: 0,
+        access_history: Box::new(Vec::new()),
     }));
 
     // spawn 20 clients
