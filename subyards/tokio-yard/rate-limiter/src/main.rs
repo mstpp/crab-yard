@@ -5,7 +5,7 @@ use tokio::sync::Semaphore;
 struct Resource {
     counter: usize,
     last_client: usize,
-    access_history: Box<Vec<usize>>,
+    access_history: Vec<usize>,
 }
 
 impl Resource {
@@ -41,7 +41,7 @@ async fn main() {
     let data = Arc::new(Mutex::new(Resource {
         counter: 0,
         last_client: 0,
-        access_history: Box::new(Vec::new()),
+        access_history: Vec::new(),
     }));
 
     // spawn 20 clients
