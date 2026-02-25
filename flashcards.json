@@ -202,16 +202,6 @@
         "answer": "checked_* / warpping_* / saturating_* / overflowing_* /"
       }
     ],
-    "Concurrency": [
-      {
-        "question": "Semaphore vs Queue?",
-        "answer": "Semaphore:\n- Controls access count to a resource\n- \"How many can enter?\"\nQueue:\n- Holds and transfers actual data\n- \"What work needs to be done?\"\n\nUse a semaphore when you need to limit concurrent access to something that already exists — you're not passing work items, you're gatekeeping access.\nUse a queue when you need to pass actual work items between producers and consumers."
-      },
-      {
-        "question": "Arc<Mutex<T>> vs Message Passing ?",
-        "answer": "Arc<Mutex<T>> — Shared State: Multiple tasks access the same data, coordinated by a lock;Mental model: One piece of data, many accessors taking turns.\nMessage Passing — Channels (tokio::sync::mpsc): Tasks own their data privately and communicate by sending messages;Mental model: Data lives in one place, others send requests to it.\n\n+----------------------------------------------+-------------------+----------------------------------------------+\n| Scenario                                     | Better Choice     | Why                                          |\n+----------------------------------------------+-------------------+----------------------------------------------+\n| Simple counter / flag                        | Arc<Mutex<T>>     | Low overhead, straightforward                |\n| Complex state with invariants                | Message passing   | Single owner maintains invariants            |\n| High contention (many tasks, frequent access)| Message passing   | Avoids lock convoy problem                   |\n| Need request-response pattern                | Message passing   | Natural fit with channels                    |\n| State machine with complex transitions       | Message passing   | Actor handles transitions sequentially       |\n| Quick read-modify-write                      | Arc<Mutex<T>>     | Less ceremony                                |\n+----------------------------------------------+-------------------+----------------------------------------------+\n\n\"Don't communicate by sharing memory; share memory by communicating.\""
-      }
-    ],
     "RESTful API": [
       {
         "question": "What means REST?",
@@ -240,6 +230,24 @@
       {
         "question": "common security concerns when building REST APIs?",
         "answer": "SQL Injection\nRate limiting (429)\nBad input - Validation + sanitization\nUnauthorized access\nExplicit field selection to prevent data leaks"
+      }
+    ],
+    "Concurrency": [
+      {
+        "question": "Semaphore vs Queue?",
+        "answer": "Semaphore:\n- Controls access count to a resource\n- \"How many can enter?\"\nQueue:\n- Holds and transfers actual data\n- \"What work needs to be done?\"\n\nUse a semaphore when you need to limit concurrent access to something that already exists — you're not passing work items, you're gatekeeping access.\nUse a queue when you need to pass actual work items between producers and consumers."
+      },
+      {
+        "question": "Arc<Mutex<T>> vs Message Passing ?",
+        "answer": "Arc<Mutex<T>> — Shared State: Multiple tasks access the same data, coordinated by a lock;Mental model: One piece of data, many accessors taking turns.\nMessage Passing — Channels (tokio::sync::mpsc): Tasks own their data privately and communicate by sending messages;Mental model: Data lives in one place, others send requests to it.\n\n+----------------------------------------------+-------------------+----------------------------------------------+\n| Scenario                                     | Better Choice     | Why                                          |\n+----------------------------------------------+-------------------+----------------------------------------------+\n| Simple counter / flag                        | Arc<Mutex<T>>     | Low overhead, straightforward                |\n| Complex state with invariants                | Message passing   | Single owner maintains invariants            |\n| High contention (many tasks, frequent access)| Message passing   | Avoids lock convoy problem                   |\n| Need request-response pattern                | Message passing   | Natural fit with channels                    |\n| State machine with complex transitions       | Message passing   | Actor handles transitions sequentially       |\n| Quick read-modify-write                      | Arc<Mutex<T>>     | Less ceremony                                |\n+----------------------------------------------+-------------------+----------------------------------------------+\n\n\"Don't communicate by sharing memory; share memory by communicating.\""
+      },
+      {
+        "question": "During Mutex lock, does other tasks or threads can read the value?",
+        "answer": "With Arc<Mutex<T>> — whether std::sync::Mutex or tokio::sync::Mutex — all other tasks are blocked, even for reading. A Mutex makes no distinction between readers and writers; it's exclusive access, period.\nUse RwLock instead — it allows multiple simultaneous readers but only one writer."
+      },
+      {
+        "question": "What is MPSC?",
+        "answer": "Multi-producer-single-consumer \n\"Don't communicate by sharing memory; share memory by communicating.\"\nYou can share memory by passing mutex to threads, or you can use channel for communicating and memory is owned and managed by consumer"
       }
     ]
   }
