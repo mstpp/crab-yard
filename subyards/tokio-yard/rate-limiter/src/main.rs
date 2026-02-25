@@ -57,13 +57,11 @@ async fn main() {
 
     // spawn 20 clients
     for i in 1..=20 {
-        let cloned = data.clone();
-        let cloned_sem = semaphore.clone();
-        join_set.spawn(client(i, cloned, cloned_sem));
+        join_set.spawn(client(i, data.clone(), semaphore.clone()));
     }
 
-    while let Some(res) = join_set.join_next().await {
-        println!("{res:?}");
-    }
+    join_set.join_all().await; // it will panic on poisoning
+    // while join_set.join_next().await.is_some() {} //in case silent continue on err
+
     println!("Final data: {data:?}");
 }
