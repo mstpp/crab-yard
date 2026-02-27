@@ -248,6 +248,10 @@
       {
         "question": "What is MPSC?",
         "answer": "Multi-producer-single-consumer \n\"Don't communicate by sharing memory; share memory by communicating.\"\nYou can share memory by passing mutex to threads, or you can use channel for communicating and memory is owned and managed by consumer"
+      },
+      {
+        "question": "When and why to use a JoinHandle?`",
+        "answer": "- result propagation, if you are somhow using the result from the task \n- lifetime management - if you want gracefully to shutdown, you want to wait for success io before shutting down for example after SIGTERM\n- task control - you can also .abort() the task"
       }
     ]
   }

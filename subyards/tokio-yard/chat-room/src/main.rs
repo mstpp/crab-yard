@@ -50,6 +50,38 @@ async fn main() {
             let (reader, mut writer) = tcp_stream.into_split();
             let mut lines = BufReader::new(reader).lines();
 
+            // TODO add a join-banner - do you want to join channel?
+            // if yes, send a welcome message, if no bye message and close connection
+
+            println!("Sending Join-banner to {socket_addr}");
+            let banner_msg = "Join chat-room? (y for yes, anything for no)";
+            let _ = writer.write_all(banner_msg.as_bytes()).await;
+
+            // join answer
+            match lines.next_line().await {
+                Ok(Some(answer)) => {
+                    println!("[{socket_addr}] Got join banner reply: {answer}");
+                    if answer == "y" {
+                        println!("[{socket_addr}] Sending welcome msg");
+                        let welcom_msg =
+                            "===============\nWelcome to the chat room!\n===============\n";
+                        let _ = writer.write_all(welcom_msg.as_bytes()).await;
+                    } else {
+                        println!("[{socket_addr}] Sending bye msg and closing connection");
+                        let _ = writer.write_all(b"Bye!\n").await;
+                        return;
+                    }
+                }
+                Ok(None) => {
+                    println!("[{socket_addr}] Connection lost");
+                    return;
+                }
+                Err(e) => {
+                    println!("[{socket_addr}] Connection error {e:?}");
+                    return;
+                }
+            }
+
             loop {
                 tokio::select! {
                     // from tcp client
