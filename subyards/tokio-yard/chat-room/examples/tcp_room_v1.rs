@@ -1,26 +1,48 @@
-use bytes::Bytes;
-use std::net::SocketAddr;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpListener;
-use tokio::sync::broadcast;
+use tokio::sync::{broadcast, mpsc};
 
-#[derive(Debug, Clone)]
-struct ChatMessage {
-    sender: SocketAddr,
-    msg: Bytes, // efficient zero copy Arc behind
-                // msg: Arc<[u8]>, // double allocation when Arc::from(format!())
+#[derive(Debug)]
+struct ChatRoom {
+    tx: broadcast::Sender<String>,
+    rx: mpsc::Receiver<String>,
+}
+
+impl ChatRoom {
+    fn new() -> (Self, mpsc::Sender<String>, broadcast::Sender<String>) {
+        let (tx, rx) = mpsc::channel::<String>(10);
+        let (btx, _) = broadcast::channel::<String>(10);
+        (
+            ChatRoom {
+                tx: btx.clone(),
+                rx: rx,
+            },
+            tx,
+            btx,
+        )
+    }
+
+    async fn run(mut self) {
+        println!("Waitig for messages in the room");
+        while let Some(msg) = self.rx.recv().await {
+            println!("server got msg: {msg}");
+            let _ = self.tx.send(msg);
+        }
+    }
 }
 
 #[tokio::main]
 async fn main() {
     println!("Opened TCP server connection at localhost:7575");
     let listener = TcpListener::bind("localhost:7575").await.unwrap();
-    let (bcast_tx, _) = broadcast::channel::<ChatMessage>(10);
+    let (chat_room, tx, btx) = ChatRoom::new();
+    tokio::spawn(chat_room.run());
 
+    // each connection is new tokio async task
     loop {
         let (tcp_stream, socket_addr) = listener.accept().await.unwrap();
-        let client_tx = bcast_tx.clone();
-        let mut clinet_rx = bcast_tx.subscribe();
+        let client_tx = tx.clone();
+        let mut clinet_rx = btx.subscribe();
 
         tokio::spawn(async move {
             println!("Connected to socket {socket_addr:?}");
@@ -28,11 +50,14 @@ async fn main() {
             let (reader, mut writer) = tcp_stream.into_split();
             let mut lines = BufReader::new(reader).lines();
 
+            // TODO add a join-banner - do you want to join channel?
+            // if yes, send a welcome message, if no bye message and close connection
+
             println!("Sending Join-banner to {socket_addr}");
             let banner_msg = "Join chat-room? (y for yes, anything for no)";
             let _ = writer.write_all(banner_msg.as_bytes()).await;
 
-            // join-banner
+            // join answer
             match lines.next_line().await {
                 Ok(Some(answer)) => {
                     println!("[{socket_addr}] Got join banner reply: {answer}");
@@ -64,12 +89,14 @@ async fn main() {
                         match result {
                             Ok(Some(msg)) => {
                                 println!("got line: {msg}");
-                                let bcast_msg = Bytes::from(format!("[{}]: {}\n", socket_addr, msg));
-                                let chat_msg = ChatMessage {sender: socket_addr, msg: bcast_msg};
-                                let _ = client_tx.send(chat_msg);
+                                client_tx.send(format!("{socket_addr}:{msg}")).await.unwrap();
                             }
-                            Ok(None) | Err(_) => {
-                                println!("[{socket_addr}] Connection closed or error. Disconnecting.");
+                            Ok(None) => {
+                                println!("Conn lost {socket_addr}");
+                                break;
+                            }
+                            Err(e) => {
+                                println!("conn err {e:?}");
                                 break;
                             }
                         }
@@ -77,21 +104,9 @@ async fn main() {
 
                     // from broadcast
                     result = clinet_rx.recv() => {
-                        match result {
-                            Ok(msg) =>
-                                if msg.sender != socket_addr {
-                                    if writer.write_all(&msg.msg).await.is_err() {
-                                        println!("[{socket_addr}] Write failed (client disconnected). Dropping task.");
-                                        break;
-                                    }
-                                },
-                            Err(tokio::sync::broadcast::error::RecvError::Lagged(skipped)) => {
-                                // Tokio's broadcast handles backpressure by dropping messages for slow readers
-                                println!("[{socket_addr}] Client lagged, missed {skipped} messages");
-                            }
-                            Err(tokio::sync::broadcast::error::RecvError::Closed) => {
-                                println!("Channel closed");
-                                break;
+                        if let Ok(msg) = result {
+                            if !msg.as_str().contains(format!("{socket_addr}").as_str()){
+                                let _ = writer.write_all(format!("Broadcast: {msg}\n").as_bytes()).await;
                             }
                         }
                     }
