@@ -1,57 +1,5 @@
 {
   "topics_map": {
-    "RESTful API": [
-      {
-        "question": "What means REST?",
-        "answer": "REpresentation State Transfer \nStatelessness ✓\nHTTP methods (GET, POST, PUT, DELETE) ✓\nResource-based URLs (/users) ✓\nHeaders for auth/metadata ✓\nClient-Server — separation of concerns\nStateless — you got this one\nCacheable — responses can be cached\nUniform Interface — consistent resource naming, standard methods\nLayered System — client doesn't know if it's talking to end server or intermediary"
-      },
-      {
-        "question": "Can you explain the difference between PUT and PATCH? When would you use one over the other?",
-        "answer": "For PUT you need to have all fields, for PATCH only partial update, just email for example \nPUT — when client has the full resource and wants to replace it entirely\nPATCH — when updating one or two fields (more bandwidth-efficient, safer)"
-      },
-      {
-        "question": "A client calls your API to create a new user, and it succeeds. What HTTP status code should you return — and why not just 200 OK?",
-        "answer": "201 Created — that's the one. (Not \"201 OK\" — the phrase is \"201 Created\", while \"200 OK\" is a different code.)\nYou typically return:\n\nThe created resource (with its new id) in the body\nLocation header pointing to the new resource URL e.g. return jsonify(user), 201, {'Location': f'/users/{user[\"id\"]}'}\n\nQuick 2xx family cheat sheet:\n200 OK General success, returning data\n201 Created Resource created (POST)\n204 No Content Success, but nothing to return (often for DELETE)\n202 Accepted - async req where we wait for long rnning job"
-      },
-      {
-        "question": "A client tries to fetch GET /users/9999 but that user doesn't exist. What status code do you return?\nNow — what if they try to create a user with an email that already exists? Same code or different?",
-        "answer": "404 Not Found — ✓ Perfect for \"resource doesn't exist\"\n409 Conflict is more semantically accurate here because:\n\nThe request itself is valid (well-formed JSON, all fields present)\nIt just conflicts with existing data"
-      },
-      {
-        "question": "4xx return codes?",
-        "answer": "Client side error codes: \n400 Validation failed, bad JSON, missing required field\n401 Not authenticated (who are you?)\n403 Authenticated but not authorized (you can't do this)\n404 Resource not found\n409 Conflict with existing resource\n429 Too many requests (Rate limit)"
-      },
-      {
-        "question": "HATEOAS?",
-        "answer": "HATEOAS — Hypermedia As The Engine Of Application State\nThe idea: API responses should include links telling the client what actions are possible next\n{\n    \"id\": 42,\n    \"name\": \"Marko\",\n    \"status\": \"active\",\n    \"links\": [\n        {\"rel\": \"self\", \"href\": \"/users/42\"},\n        {\"rel\": \"posts\", \"href\": \"/users/42/posts\"},\n        {\"rel\": \"deactivate\", \"href\": \"/users/42/deactivate\", \"method\": \"POST\"}\n    ]\n}\n\nReality: Almost nobody implements full HATEOAS. It's academically \"correct\" REST but overkill for most real-world APIs.\n\"HATEOAS means responses include links to related actions and resources — making the API self-discoverable. In theory it's elegant, but in practice most teams skip it because clients typically hardcode endpoints anyway. I'd consider it for public APIs where discoverability matters, but for internal services it's usually overkill.\""
-      },
-      {
-        "question": "common security concerns when building REST APIs?",
-        "answer": "SQL Injection\nRate limiting (429)\nBad input - Validation + sanitization\nUnauthorized access\nExplicit field selection to prevent data leaks"
-      }
-    ],
-    "Concurrency": [
-      {
-        "question": "Semaphore vs Queue?",
-        "answer": "Semaphore:\n- Controls access count to a resource\n- \"How many can enter?\"\nQueue:\n- Holds and transfers actual data\n- \"What work needs to be done?\"\n\nUse a semaphore when you need to limit concurrent access to something that already exists — you're not passing work items, you're gatekeeping access.\nUse a queue when you need to pass actual work items between producers and consumers."
-      },
-      {
-        "question": "Arc<Mutex<T>> vs Message Passing ?",
-        "answer": "Arc<Mutex<T>> — Shared State: Multiple tasks access the same data, coordinated by a lock;Mental model: One piece of data, many accessors taking turns.\nMessage Passing — Channels (tokio::sync::mpsc): Tasks own their data privately and communicate by sending messages;Mental model: Data lives in one place, others send requests to it.\n\n+----------------------------------------------+-------------------+----------------------------------------------+\n| Scenario                                     | Better Choice     | Why                                          |\n+----------------------------------------------+-------------------+----------------------------------------------+\n| Simple counter / flag                        | Arc<Mutex<T>>     | Low overhead, straightforward                |\n| Complex state with invariants                | Message passing   | Single owner maintains invariants            |\n| High contention (many tasks, frequent access)| Message passing   | Avoids lock convoy problem                   |\n| Need request-response pattern                | Message passing   | Natural fit with channels                    |\n| State machine with complex transitions       | Message passing   | Actor handles transitions sequentially       |\n| Quick read-modify-write                      | Arc<Mutex<T>>     | Less ceremony                                |\n+----------------------------------------------+-------------------+----------------------------------------------+\n\n\"Don't communicate by sharing memory; share memory by communicating.\""
-      },
-      {
-        "question": "During Mutex lock, does other tasks or threads can read the value?",
-        "answer": "With Arc<Mutex<T>> — whether std::sync::Mutex or tokio::sync::Mutex — all other tasks are blocked, even for reading. A Mutex makes no distinction between readers and writers; it's exclusive access, period.\nUse RwLock instead — it allows multiple simultaneous readers but only one writer."
-      },
-      {
-        "question": "What is MPSC?",
-        "answer": "Multi-producer-single-consumer \n\"Don't communicate by sharing memory; share memory by communicating.\"\nYou can share memory by passing mutex to threads, or you can use channel for communicating and memory is owned and managed by consumer"
-      },
-      {
-        "question": "When and why to use a JoinHandle?`",
-        "answer": "- result propagation, if you are somhow using the result from the task \n- lifetime management - if you want gracefully to shutdown, you want to wait for success io before shutting down for example after SIGTERM\n- task control - you can also .abort() the task"
-      }
-    ],
     "rust": [
       {
         "question": "How do you choose Option<T> or Result<T>?",
@@ -256,6 +204,62 @@
       {
         "question": "String mindset in Rust!",
         "answer": "Strings are just illusions: In Rust, a String is literally just a Vec<u8> (a heap-allocated array of bytes) that the compiler guarantees is valid UTF-8. A string slice (&str) is just a byte slice (&[u8]) under the hood. Stop thinking in text; start thinking in bytes.\n\nSlices (&[u8]) are your best friend: When processing bytes, you almost never want to copy them into new variables unless you absolutely have to. A slice &[u8] is just a pointer to a location in memory and a length. It is incredibly cheap. Your default should be reading from a &[u8], not allocating a Vec<u8>.\n\nEndianness matters: When you want to send the number 1024 over a network, you can't just send \"1024\". A 32-bit integer (u32) takes up 4 bytes. How are those 4 bytes ordered in memory? Systems engineering requires you to be explicit about this (usually Big-Endian for network protocols).\n\nTCP is a stream, not a message queue: This is a classic sysadmin/networking fundamental. If you send two 100-byte messages over TCP, the receiver might read one 200-byte chunk, or two 100-byte chunks, or one 50-byte chunk and one 150-byte chunk. You must define how to frame your messages."
+      }
+    ],
+    "RESTful API": [
+      {
+        "question": "What means REST?",
+        "answer": "REpresentation State Transfer \nStatelessness ✓\nHTTP methods (GET, POST, PUT, DELETE) ✓\nResource-based URLs (/users) ✓\nHeaders for auth/metadata ✓\nClient-Server — separation of concerns\nStateless — you got this one\nCacheable — responses can be cached\nUniform Interface — consistent resource naming, standard methods\nLayered System — client doesn't know if it's talking to end server or intermediary"
+      },
+      {
+        "question": "Can you explain the difference between PUT and PATCH? When would you use one over the other?",
+        "answer": "For PUT you need to have all fields, for PATCH only partial update, just email for example \nPUT — when client has the full resource and wants to replace it entirely\nPATCH — when updating one or two fields (more bandwidth-efficient, safer)"
+      },
+      {
+        "question": "A client calls your API to create a new user, and it succeeds. What HTTP status code should you return — and why not just 200 OK?",
+        "answer": "201 Created — that's the one. (Not \"201 OK\" — the phrase is \"201 Created\", while \"200 OK\" is a different code.)\nYou typically return:\n\nThe created resource (with its new id) in the body\nLocation header pointing to the new resource URL e.g. return jsonify(user), 201, {'Location': f'/users/{user[\"id\"]}'}\n\nQuick 2xx family cheat sheet:\n200 OK General success, returning data\n201 Created Resource created (POST)\n204 No Content Success, but nothing to return (often for DELETE)\n202 Accepted - async req where we wait for long rnning job"
+      },
+      {
+        "question": "A client tries to fetch GET /users/9999 but that user doesn't exist. What status code do you return?\nNow — what if they try to create a user with an email that already exists? Same code or different?",
+        "answer": "404 Not Found — ✓ Perfect for \"resource doesn't exist\"\n409 Conflict is more semantically accurate here because:\n\nThe request itself is valid (well-formed JSON, all fields present)\nIt just conflicts with existing data"
+      },
+      {
+        "question": "4xx return codes?",
+        "answer": "Client side error codes: \n400 Validation failed, bad JSON, missing required field\n401 Not authenticated (who are you?)\n403 Authenticated but not authorized (you can't do this)\n404 Resource not found\n409 Conflict with existing resource\n429 Too many requests (Rate limit)"
+      },
+      {
+        "question": "HATEOAS?",
+        "answer": "HATEOAS — Hypermedia As The Engine Of Application State\nThe idea: API responses should include links telling the client what actions are possible next\n{\n    \"id\": 42,\n    \"name\": \"Marko\",\n    \"status\": \"active\",\n    \"links\": [\n        {\"rel\": \"self\", \"href\": \"/users/42\"},\n        {\"rel\": \"posts\", \"href\": \"/users/42/posts\"},\n        {\"rel\": \"deactivate\", \"href\": \"/users/42/deactivate\", \"method\": \"POST\"}\n    ]\n}\n\nReality: Almost nobody implements full HATEOAS. It's academically \"correct\" REST but overkill for most real-world APIs.\n\"HATEOAS means responses include links to related actions and resources — making the API self-discoverable. In theory it's elegant, but in practice most teams skip it because clients typically hardcode endpoints anyway. I'd consider it for public APIs where discoverability matters, but for internal services it's usually overkill.\""
+      },
+      {
+        "question": "common security concerns when building REST APIs?",
+        "answer": "SQL Injection\nRate limiting (429)\nBad input - Validation + sanitization\nUnauthorized access\nExplicit field selection to prevent data leaks"
+      },
+      {
+        "question": "What is a Resource from the perspective of REST?",
+        "answer": "Resource is something that is \"served\"  over the API request via URI - Uniform Resource Identifier\nExample: To find a specific song, the URI might look like this:\nhttps://api.musicapp.com/v1/songs/123"
+      }
+    ],
+    "Concurrency": [
+      {
+        "question": "Semaphore vs Queue?",
+        "answer": "Semaphore:\n- Controls access count to a resource\n- \"How many can enter?\"\nQueue:\n- Holds and transfers actual data\n- \"What work needs to be done?\"\n\nUse a semaphore when you need to limit concurrent access to something that already exists — you're not passing work items, you're gatekeeping access.\nUse a queue when you need to pass actual work items between producers and consumers."
+      },
+      {
+        "question": "Arc<Mutex<T>> vs Message Passing ?",
+        "answer": "Arc<Mutex<T>> — Shared State: Multiple tasks access the same data, coordinated by a lock;Mental model: One piece of data, many accessors taking turns.\nMessage Passing — Channels (tokio::sync::mpsc): Tasks own their data privately and communicate by sending messages;Mental model: Data lives in one place, others send requests to it.\n\n+----------------------------------------------+-------------------+----------------------------------------------+\n| Scenario                                     | Better Choice     | Why                                          |\n+----------------------------------------------+-------------------+----------------------------------------------+\n| Simple counter / flag                        | Arc<Mutex<T>>     | Low overhead, straightforward                |\n| Complex state with invariants                | Message passing   | Single owner maintains invariants            |\n| High contention (many tasks, frequent access)| Message passing   | Avoids lock convoy problem                   |\n| Need request-response pattern                | Message passing   | Natural fit with channels                    |\n| State machine with complex transitions       | Message passing   | Actor handles transitions sequentially       |\n| Quick read-modify-write                      | Arc<Mutex<T>>     | Less ceremony                                |\n+----------------------------------------------+-------------------+----------------------------------------------+\n\n\"Don't communicate by sharing memory; share memory by communicating.\""
+      },
+      {
+        "question": "During Mutex lock, does other tasks or threads can read the value?",
+        "answer": "With Arc<Mutex<T>> — whether std::sync::Mutex or tokio::sync::Mutex — all other tasks are blocked, even for reading. A Mutex makes no distinction between readers and writers; it's exclusive access, period.\nUse RwLock instead — it allows multiple simultaneous readers but only one writer."
+      },
+      {
+        "question": "What is MPSC?",
+        "answer": "Multi-producer-single-consumer \n\"Don't communicate by sharing memory; share memory by communicating.\"\nYou can share memory by passing mutex to threads, or you can use channel for communicating and memory is owned and managed by consumer"
+      },
+      {
+        "question": "When and why to use a JoinHandle?`",
+        "answer": "- result propagation, if you are somhow using the result from the task \n- lifetime management - if you want gracefully to shutdown, you want to wait for success io before shutting down for example after SIGTERM\n- task control - you can also .abort() the task"
       }
     ]
   }
